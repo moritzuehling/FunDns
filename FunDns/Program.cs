@@ -44,8 +44,6 @@ namespace FunDns
 
             var question = msg.Questions[0];
 
-            Console.WriteLine("Got a request for " + string.Join(".", question.Name.Labels).ToString());
-
             if (Search.Length + 1 > question.Name.Labels.Length)
                 return;
 
@@ -62,7 +60,7 @@ namespace FunDns
 
             DnsMessage response = msg.CreateResponseInstance();
             response.ReturnCode = ReturnCode.NoError;
-            response.AnswerRecords.Add(new ARecord(new DomainName(Search), 300, ip));
+            response.AnswerRecords.Add(new ARecord(question.Name, 300, ip));
 
             eventArgs.Response = response;
         }
