@@ -42,8 +42,9 @@ namespace FunDns
             if (msg == null || msg.Questions.Count != 1)
                 return;
 
-
             var question = msg.Questions[0];
+
+            Console.WriteLine("Got a request for " + string.Join(".", question.Name.Labels).ToString());
 
             if (Search.Length + 1 > question.Name.Labels.Length)
                 return;
