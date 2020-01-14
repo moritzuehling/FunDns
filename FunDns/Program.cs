@@ -58,9 +58,12 @@ namespace FunDns
             domainName[0] = question.Name.Labels[0];
             Array.Copy(Search, 0, domainName, 1, Search.Length);
 
+            var responseName = new string[Search.Length + 1];
+            Array.Copy(question.Name.Labels, 0, responseName, 0, responseName.Length);
+
             DnsMessage response = msg.CreateResponseInstance();
             response.ReturnCode = ReturnCode.NoError;
-            response.AnswerRecords.Add(new ARecord(question.Name, 300, ip));
+            response.AnswerRecords.Add(new ARecord(new DomainName(responseName), 300, ip));
 
             eventArgs.Response = response;
         }
