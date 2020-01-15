@@ -59,6 +59,14 @@ namespace FunDns
                 return;
             }
 
+            if (question.RecordType == RecordType.CAA && AcmeChallenge != null)
+            {
+                var resp = msg.CreateResponseInstance();
+                resp.ReturnCode = ReturnCode.NxDomain;
+                eventArgs.Response = resp;
+                return;
+            }
+
             if (question.RecordType != RecordType.A)
                 return;
 
