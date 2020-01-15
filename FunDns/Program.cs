@@ -13,18 +13,24 @@ namespace FunDns
     class Program
     {
         static string[] Search;
+        static string AcmeChallenge = null;
 
         static void Main(string[] args)
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("FunDns.exe secondlevel.tld");
+                Console.WriteLine("FunDns.exe secondlevel.tld <acmeChallenge>");
                 Console.WriteLine("--> Responds to 127-0-0-1.secondlevel.tld with 127.0.0.1");
+                Console.WriteLine("--> If an acmeChallenge is provided, it replies to ALL txt requests with this.");
                 return;
             }
 
             Console.WriteLine("Main domain name: " + args[0]);
             Search = args[0].ToLowerInvariant().Split('.');
+
+            if (args.Length > 1)
+                AcmeChallenge = args[1];
+
 
             var dnsServer = new DnsServer(IPAddress.Any, 8, 8);
             dnsServer.QueryReceived += DnsServer_QueryReceived;
@@ -43,6 +49,19 @@ namespace FunDns
                 return;
 
             var question = msg.Questions[0];
+
+            if (question.RecordType == RecordType.Txt && AcmeChallenge != null)
+            {
+                var resp = msg.CreateResponseInstance();
+                resp.ReturnCode = ReturnCode.NoError;
+                resp.AnswerRecords.Add(new TxtRecord(question.Name, 60, AcmeChallenge));
+                eventArgs.Response = resp;
+                return;
+            }
+
+            if (question.RecordType != RecordType.A)
+                return;
+
 
             if (Search.Length + 1 > question.Name.Labels.Length)
                 return;
